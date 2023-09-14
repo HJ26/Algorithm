@@ -73,21 +73,20 @@ public class Main {
 				int nextY = y + dy[i];
 				
 				// 배열의 범위에 속하는 경우
-				if (nextX >= 0 && nextX < N && nextY >= 0 && nextY < M) {
+				if (nextX < 0 || nextX >= N || nextY < 0 || nextY >= M) continue;
 
-					// 벽을 만난 경우
-					if (board[nextX][nextY] == 1) {
-						if (crush == 0) {
-							que.add(new Place(nextX, nextY, 1, move + 1));
-						}
-					}else { // 벽을 만나지 않은 경우
-						if (!visit[nextX][nextY][crush]) {
-							que.add(new Place(nextX, nextY, crush, move + 1));
-							visit[nextX][nextY][crush] = true;
-						}
-					}
-				}
-			}
+                // 벽을 만난 경우
+                if (board[nextX][nextY] == 1) {
+                    if (crush == 0) {
+                        que.add(new Place(nextX, nextY, 1, move + 1));
+                    }
+                }else { // 벽을 만나지 않은 경우
+                    if (!visit[nextX][nextY][crush]) {
+                        que.add(new Place(nextX, nextY, crush, move + 1));
+                        visit[nextX][nextY][crush] = true;
+                    }
+                }
+            }
 		}
 	}
 }
