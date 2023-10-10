@@ -32,6 +32,7 @@ public class Main {
 		}
 		
 	}
+	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -46,32 +47,28 @@ public class Main {
 		}
 		
 		// 별들의 간선 구하기
-		PriorityQueue<Edge> edges = new PriorityQueue<Main.Edge>();
+		List<Edge> edges = new LinkedList<Main.Edge>();
 		edgeCost = new float[N][N];
 		for(int i = 0; i < N; i++) {
-			for(int j = 0; j < N; j++) {
-				if(i == j) continue;
-				edges.offer(new Edge(i,j,(float) Math.sqrt( Math.pow( (stars[i].x - stars[j].x) , 2) + Math.pow( (stars[i].y - stars[j].y) , 2))));
+			for(int j = i+1; j < N; j++) {
+				edges.add(new Edge(i,j,(float) Math.sqrt( Math.pow( (stars[i].x - stars[j].x) , 2) + Math.pow( (stars[i].y - stars[j].y) , 2))));
 			}
 		}
-
-		// 최소 길이 구하기
 		
+		Collections.sort(edges);
+		
+		// 최소 길이 구하기
 		p = new int[N];
 		Arrays.setAll(p, i -> i);
 		
-		int nEdge = 0;
-		while(nEdge < N-1) {
-			
-			Edge edge = edges.poll();
+		for(Edge edge : edges) {
 			int fx = findset(edge.x);
 			int fy = findset(edge.y);
 			if(fx == fy) continue;
 			p[fy] = fx;
 			minCost += edge.dist;
-			nEdge++;
-			
 		}
+	
 		// 출력
 		System.out.printf("%.2f\n",minCost);
 	}
