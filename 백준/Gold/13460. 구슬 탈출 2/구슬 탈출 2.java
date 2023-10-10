@@ -5,14 +5,13 @@ public class Main {
 	static int NR, NC, redR, redC, blueR, blueC, nextRedR, nextRedC, nextBlueR, nextBlueC;
 	static int[] dr = { -1, 1, 0, 0 };
 	static int[] dc = { 0, 0, -1, 1 };
-	static int[][] map;
+	static String[][] map;
 	static int isSuccess = -1;
 
 	static class Gu {
 		int redR, redC, blueR, blueC, nMove;
 
-		public Gu() {
-		}
+		public Gu() {}
 
 		public Gu(int redR, int redC, int blueR, int blueC, int nMove) {
 			this.redR = redR;
@@ -32,27 +31,20 @@ public class Main {
 		st = br.readLine().split(" ");
 		NR = Integer.parseInt(st[0]);
 		NC = Integer.parseInt(st[1]);
-		map = new int[NR][NC];
+		map = new String[NR][NC];
 		for (int r = 0; r < NR; r++) {
 			st = br.readLine().split("");
 			for (int c = 0; c < NC; c++) {
-				switch (st[c]) {
-				case "#": // 벽 = 갈 수 없는 곳
-					map[r][c] = -1;
-					break;
-				case "B": // 파란 구슬 = 넣으면 안됨
-					blueR = r;
-					blueC = c;
-					break;
-				case "R": // 빨간 구슬 = 넣어야 됨
+				if(st[c].equals("R")) {
+					map[r][c] = ".";
 					redR = r;
 					redC = c;
-					break;
-				case "O": // 구멍 = 목표 위치
-					map[r][c] = 5;
-					break;
+				}else if(st[c].equals("B")) {
+					map[r][c] = ".";
+					blueR = r;
+					blueC = c;
 				}
-
+				else map[r][c] = st[c];
 			}
 		}
 
@@ -88,10 +80,12 @@ public class Main {
 					continue;
 
 				// 빨간 구슬이 이동중에 탈출했으면 종료
-				if (isSuccess != -1)
+				if (isSuccess != -1) {
 					return;
+				}
 
 				// 큐에 추가
+				if(nextRedR == currGu.redR && nextRedC == currGu.redC && nextBlueR == currGu.blueR && nextBlueC == currGu.blueC) continue;
 				que.add(new Gu(nextRedR, nextRedC, nextBlueR, nextBlueC, currGu.nMove + 1));
 			}
 		}
@@ -100,55 +94,66 @@ public class Main {
 	private static boolean move(int dir, Gu curr) {
 
 		boolean redFlag, blueFlag;
-		int[][] mapTmp = new int[NR][NC];
-		for(int i = 0; i < NR; i++) {
-			for(int j = 0; j < NC; j++) {
-				mapTmp[i][j] = map[i][j];
-			}
-		}
 		
-		mapTmp[nextRedR][nextRedC] = 1;
-		mapTmp[nextBlueR][nextBlueC] = 2;
-		
+		redFlag = blueFlag = true;
 		while (true) {
 
-			redFlag = false;
-			blueFlag = false;
-
-			// 다음 위치가 빈 공간이거나 구멍이면 이동
-			if (mapTmp[nextBlueR + dr[dir]][nextBlueC + dc[dir]] == 0 || mapTmp[nextBlueR + dr[dir]][nextBlueC + dc[dir]] == 5) {
-				
-				blueFlag = true;					// 이동했다고 표시
-				mapTmp[nextBlueR][nextBlueC] = 0;		// 원 위치 0으로 변경
-				nextBlueR = nextBlueR + dr[dir];	// 이동
-				nextBlueC = nextBlueC + dc[dir];
-
-				// 구멍 통과 여부 판단
-				// 파란 구슬이 구멍을 통화했으면 이동 실패
-				if (mapTmp[nextBlueR][nextBlueC] == 5) {
-					isSuccess = -1;
-					return false;
-				}
-				mapTmp[nextBlueR][nextBlueC] = 2;		// 구멍을 통과한게 아니면 이동 완료
-
-			}
-
-			// 내 위치가 구멍이 아니고, 다음 위치가 빈 공간이거나 구멍이면 이동
-			if (mapTmp[nextRedR][nextRedC] != 5 && mapTmp[nextRedR + dr[dir]][nextRedC + dc[dir]] == 0 || mapTmp[nextRedR + dr[dir]][nextRedC + dc[dir]] == 5) {
-				redFlag = true;					// 이동했다고 표시
-				mapTmp[nextRedR][nextRedC] = 0;	// 원 위치 빈 공간으로 이동
-				nextRedR = nextRedR + dr[dir];	// 이동
+			// 움직일 수 있으면 움직이기
+			if(redFlag) {
+				nextRedR = nextRedR + dr[dir];
 				nextRedC = nextRedC + dc[dir];
-
-				// 구멍 통과 여부 판단
-				if (mapTmp[nextRedR][nextRedC] == 5) {
-					isSuccess = curr.nMove + 1;	// 구멍에 도달했으면 이동횟수 갱신
+				if(map[nextRedR][nextRedC].equals("#")) {
+					redFlag = false;
+					nextRedR = nextRedR-dr[dir];
+					nextRedC = nextRedC-dc[dir];
 				}
-				else mapTmp[nextRedR][nextRedC] = 1;								// 도달 안했으면 이동 종료
-
 			}
-
-			// 둘 다 이동 안했으면 종료
+			
+			if(blueFlag) {
+				nextBlueR = nextBlueR + dr[dir];
+				nextBlueC = nextBlueC + dc[dir];
+				if(map[nextBlueR][nextBlueC].equals("#")) {
+					nextBlueR = nextBlueR-dr[dir];
+					nextBlueC = nextBlueC-dc[dir];
+					blueFlag = false;
+				}
+			}
+			
+			
+			// 벽이 아니거나 위치가 같지 않으면 움직이기
+			if( blueFlag ) { 
+				if(!(nextRedR == nextBlueR && nextRedC == nextBlueC )) {				
+					// 파란색이 구멍에 들어가면 이동 못함
+					if(map[nextBlueR][nextBlueC].equals("O")) {
+						isSuccess = -1;
+						return false;
+					}
+				} else {
+					// 못 움직이면 위치 갱신
+					nextBlueR = nextBlueR-dr[dir];
+					nextBlueC = nextBlueC-dc[dir];
+					blueFlag = false;
+				}
+			}
+			
+			if(redFlag) {
+				if(!(nextRedR == nextBlueR && nextRedC == nextBlueC ))  {				
+					// 빨간색이 구멍에 들어가면 빨간색 이동 종료
+					if(map[nextRedR][nextRedC].equals("O")) {
+						isSuccess = curr.nMove+1;
+						nextRedR = 11;
+						nextRedC = 11;
+						redFlag = false;
+					}
+				} else {
+					// 못 움직이면 맵 갱신
+					nextRedR = nextRedR-dr[dir];
+					nextRedC = nextRedC-dc[dir];					
+					redFlag = false;
+				}
+			}
+			
+			// 둘 다 이동을 못하면 종료
 			if (!redFlag && !blueFlag) break;
 
 		}
