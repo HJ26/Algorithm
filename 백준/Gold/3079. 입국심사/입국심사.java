@@ -35,7 +35,7 @@ public class Main {
 			// 사람수가 많거나 같으면 줄여서 확인
 			// 적으면 늘려서 확인
 			if( nPerson >= nFriends) {
-				ans = Math.min(ans,mid);	// 검사가 가능했던 시간 저장
+				ans = mid;	// 검사가 가능했던 시간 저장
 				right = mid-1;				// 더 작은값 확인
 			}
 			else left = mid+1;				// 더 큰값 확인
