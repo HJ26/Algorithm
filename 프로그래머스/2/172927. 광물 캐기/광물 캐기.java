@@ -1,72 +1,75 @@
 import java.util.*;
-
 class Solution {
     
-    static class Mineral {
-        private int diamond;
-        private int iron;
-        private int stone;
+    static class Group implements Comparable<Group> {
+        int nDia;
+        int nIron;
+        int nStone;
         
-        public Mineral(int diamond, int iron, int stone) {
-            this.diamond = diamond;
-            this.iron = iron;
-            this.stone = stone;
+        public Group(int nDia, int nIron, int nStone){
+            this.nDia = nDia;
+            this.nIron = nIron;
+            this.nStone = nStone;
+        }
+        
+        public int compareTo(Group g){
+            if(this.nDia == g.nDia){
+                if(this.nIron == g.nIron) return g.nStone - this.nStone;
+                return g.nIron - this.nIron;
+            }
+            return g.nDia - this.nDia;
         }
     }
-    
-    static int[][] scoreBoard;
-    static List<Mineral> list;
     
     public int solution(int[] picks, String[] minerals) {
         int answer = 0;
         
-        scoreBoard = new int[][]{{1, 1, 1}, {5, 1, 1}, {25, 5, 1}};
+        int idx = 0;
+        Group gTmp = new Group(0,0,0);
+        List<Group> groups = new ArrayList<>();
         
-        int totalPicks = Arrays.stream(picks).sum();
-        list = new ArrayList<>();
-        for(int i = 0; i < minerals.length; i+=5) {
-            if(totalPicks == 0) break;
-            
-            int dia = 0, iron = 0, stone = 0;
-            for(int j = i; j < i + 5; j++) {
-                if(j == minerals.length) break;
-                
-                String mineral = minerals[j];
-                int val = mineral.equals("iron") ? 1 : 
-                    mineral.equals("stone") ? 2 : 0;
-                
-                dia += scoreBoard[0][val];
-                iron += scoreBoard[1][val];
-                stone += scoreBoard[2][val];
-            }
-            
-            list.add(new Mineral(dia, iron, stone));
-            totalPicks--;
-        }
         
-        Collections.sort(list, ((o1, o2) -> (o2.stone - o1.stone)));
-        for(Mineral m : list) {
-            int dia = m.diamond;
-            int iron = m.iron;
-            int stone = m.stone;
+        int totalPick = picks[0] + picks[1] + picks[2];
+        for(int i = 0; i < minerals.length && i < totalPick*5; i++){
             
-            if(picks[0] > 0) {
-                answer += dia;
-                picks[0]--;
-                continue;
-            }
-            if(picks[1] > 0) {
-                answer += iron;
-                picks[1]--;
-                continue;
-            }
-            if(picks[2] > 0) {
-                answer += stone;
-                picks[2]--;
-                continue;
+            if(minerals[i].equals("diamond")) gTmp.nDia++;
+            else if(minerals[i].equals("iron")) gTmp.nIron++;
+            else gTmp.nStone++;
+            
+            idx++;
+            
+            if(idx == 5){
+                groups.add(new Group(gTmp.nDia, gTmp.nIron, gTmp.nStone));
+                gTmp = new Group(0,0,0);
+                idx = 0;
             }
         }
         
+        if(idx != 0){
+            groups.add(new Group(gTmp.nDia, gTmp.nIron, gTmp.nStone));
+        }
+        
+        Collections.sort(groups);
+        
+        idx = 0;
+        for( Group g : groups ){
+            
+            while(idx < 3 && picks[idx] == 0) idx++;
+            if(idx == 3) break;
+            picks[idx]--;
+            
+            switch(idx){
+                case 0:
+                    answer += (g.nDia + g.nIron + g.nStone);
+                    break;
+                case 1:
+                    answer += (g.nDia * 5 + g.nIron + g.nStone);
+                    break;
+                case 2:
+                    answer += (g.nDia * 25 + g.nIron * 5 + g.nStone);
+                    break;
+            }
+        }
         return answer;
     }
 }
