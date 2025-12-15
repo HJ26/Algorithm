@@ -4,31 +4,35 @@ import java.util.StringTokenizer;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
         StringTokenizer st;
-        
+        StringBuilder sb = new StringBuilder();
         String S = br.readLine();
         int N = Integer.parseInt(br.readLine());
 
-        while(N --> 0) {
-            st = new StringTokenizer(br.readLine());
-            char findChar = st.nextToken().charAt(0);
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
+        int[][] alpha = new int[S.length()+1][26];
 
-            int count = 0;
-            if(S.indexOf(findChar) >= 0){
-                for(int i = start; i <= end; i++){
-                    if(findChar == S.charAt(i)){
-                        count++;
-                    }
-                }
+
+        for(int i = 1;i<= S.length();i++) {
+
+            int searchChar = S.charAt(i-1)-'a';
+
+
+            for(int j = 0; j < 26; j++) {
+                int beforeValue = alpha[i-1][j];
+                alpha[i][j] = ( j == searchChar ? beforeValue+1 : beforeValue);
             }
-            sb.append(count+"\n");
+        }
+
+        while(N --> 0){
+            st = new StringTokenizer(br.readLine());
+
+            int findIdx = st.nextToken().charAt(0)-'a';
+            int start = Integer.parseInt(st.nextToken())+1;
+            int end = Integer.parseInt(st.nextToken())+1;
+
+            sb.append((alpha[end][findIdx]-alpha[start-1][findIdx])+"\n");
         }
         System.out.println(sb);
     }
-
 }
