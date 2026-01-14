@@ -1,24 +1,23 @@
+import java.util.*;
+
 class Solution {
-    static int idx = 0;
-    public int[][] solution(int n) {
-        int[][] answer = new int[(int) Math.pow(2,n)-1][2];
+    
+    static List<int[]> route = new ArrayList<>();
+    public List<int[]> solution(int n) {
         
-        hanoi(n,1,3,2,answer);
+        hanoi(n,1,3,2);
         
-        return answer;
+        return route;
     }
     
-    private void hanoi(int num, int start, int end, int mid, int[][] answer){
-        
-        if(num == 1) {
-            answer[idx++] = new int[] {start, end};
+    private void hanoi(int n, int start, int end, int mid){
+        if(n == 1){
+            route.add(new int[] { start, end });
             return;
         }
         
-        hanoi(num-1, start, mid, end, answer);
-        answer[idx++] = new int[] {start, end};
-        hanoi(num-1, mid, end, start, answer);
-        
+        hanoi(n-1, start, mid, end);
+        route.add(new int[] {start, end});
+        hanoi(n-1, mid, end, start);
     }
-    
 }
